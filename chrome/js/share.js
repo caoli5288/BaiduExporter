@@ -205,7 +205,6 @@
 	    //获得选中的文件
 	    function getShareFile() {
 	        Downloader.reset();
-
 	        var selected = getSelected();
 	        if (selected) {
 	            for (var i =0;i<selected.length;i++) {
@@ -351,7 +350,16 @@
 	                    // Show download dialog when we got the first download link.
 	                    CORE.dataBox.show();
 	                    CORE.dataBox.fillData(file_list);
-	                } else {
+	                }else if(MODE=="DOWNLOADTOOL"){
+						//百度云下载模式
+						if(file_list.length>1){
+							CORE.showToast("对不起,暂时不支持发送多个文件","MODE_FAILURE");
+							return;
+						}
+						console.log(file_list[0].name);
+						getAJAX("http://127.0.0.1:36728/Download/?Url="+encodeURIComponent(file_list[0].link)+"&Name="+encodeURIComponent(file_list[0].name)+"&Cookies="+encodeURIComponent(CORE.getHeader("idm_txt")+"end"));
+						MODE="RPC";
+					}else {
 	                    var paths = CORE.parseAuth(RPC_PATH);
 	                    var rpc_list = CORE.aria2Data(file_list, paths[0], paths[2]);
 	                    generateParameter(rpc_list);
@@ -365,7 +373,13 @@
 	            console.log(xhr);
 	        });
 	    }
-
+		function getAJAX(url){  
+			$.ajax({
+				url: url,
+				type: 'GET',
+				dataType: 'JSONP',
+			});
+		}
 	    //生成请求参数 发送给后台 进行 http请求
 	    function generateParameter(rpc_list) {
 	        var paths = CORE.parseAuth(RPC_PATH);
@@ -388,7 +402,6 @@
 	    // Get `BDCLND` cookie for private share.
 	    CORE.sendToBackground("get_cookies", [{ url: "http://pan.baidu.com/", name: "BDCLND" }], function (value) {
 	        cookies = decodeURIComponent(value["BDCLND"]);
-
 	        var menu = CORE.addMenu.init("share");
 	        menu.on("click", ".rpc_export_list", function () {
 	            MODE = "RPC";
@@ -402,6 +415,10 @@
 	            CORE.dataBox.onClose(Downloader.reset);
 	            getShareFile();
 	        });
+			menu.on("click","#Tool",function(){
+				MODE="DOWNLOADTOOL";
+				getShareFile();
+			});
 	        setTimeout(function () {
 	            // Hook transfering files function for multiple file share page
 	            if (yunData.SHAREPAGETYPE != "single_file_page") {
@@ -547,6 +564,7 @@
 	                }
 	                var aria2_btn = $("<span>").attr("id", "export_menu");
 	                var list = $("<div>").addClass("menu").attr("id", "aria2_list").hide().appendTo(aria2_btn);
+				    $("<a>").text("发送到坐骑下载").addClass("g-button-menu").attr("id","Tool").appendTo(list);
 	                $("<a>").text("导出下载").addClass("g-button-menu").attr("id", "aria2_download").appendTo(list);
 	                var config = $("<a>").text("设置").addClass("g-button-menu").appendTo(list);
 	                if (type == "home") {
@@ -838,6 +856,7 @@
 	                    download_ui.hide();
 	                });
 	                $("#download_ui").on("click", "#copy_txt_btn", function () {
+						console.log($("#copy_txt_btn").attr("data"));
 	                    CORE.copyText($("#copy_txt_btn").attr("data"));
 	                });
 
@@ -845,7 +864,6 @@
 	                if (navigator.msSaveBlob) {
 	                    $("#aria2c_btn, #idm_btn, #download_txt_btn").click(function (e) {
 	                        e.preventDefault();
-
 	                        var $this = $(this);
 	                        navigator.msSaveBlob(new Blob([$this.data("href")]), $this.attr("download"));
 	                    });
