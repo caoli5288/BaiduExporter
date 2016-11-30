@@ -1,5 +1,7 @@
 # BaiduExporter
 
+#BaiduPanDownload修改版,可以直接从分享页面调用坐骑下载,感谢原作者!
+
 ##因为要获取Cookies，无法单纯使用脚本实现，必须插件模式加载。
 
 可以方便的把百度网盘的下载地址导出到 aria2/aria2-rpc，支持 YAAW。
