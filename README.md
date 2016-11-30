@@ -1,6 +1,6 @@
 # BaiduExporter
 
-#BaiduPanDownload修改版,可以直接从分享页面调用坐骑下载,感谢原作者!
+BaiduPanDownload修改版,可以直接从分享页面调用坐骑下载,感谢原作者!
 
 ##因为要获取Cookies，无法单纯使用脚本实现，必须插件模式加载。
 
